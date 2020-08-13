@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lejia.mapper.ConsumerLogMapper">
+    <update id="insertConsumerLog">
+        update tb_consumer_log t set
+         t.nick_name=#{nickName},
+         t.sex=#{sex}
+         where
+         t.user_id=#{userid}
+    </update>
+
+
+    <select id="findConsumerLogByOpenId" resultType="java.util.HashMap">
+        SELECT g.id id,g.login_type loginType,g.user_id userId,g.login_name loginName,g.live_phone livePhone,g.openId openid,g.union_id nuionId
+        FROM tb_consumer_log g where  g.`status`=1 and g.openid=#{openid}
+        order by g.id
+    </select>
+    <select id="findConsumerLogByUnionId" resultType="java.util.HashMap">
+        SELECT g.id id,g.login_type loginType,g.user_id userId,g.login_name loginName,g.live_phone livePhone,g.openid openid,g.union_id nuionId
+        FROM tb_consumer_log g where  g.`status`=1 and g.union_id =#{unionId}
+        order by g.id
+    </select>
+
+    <select id="findConsumerLogByUserId" resultType="java.util.HashMap">
+        SELECT g.id id,g.login_type loginType,g.user_id userId,g.login_name loginName,g.live_phone livePhone,g.openid openid,g.union_id nuionId
+        FROM tb_consumer_log g where  g.`status`=1
+        <if test="userid >0" >
+            and g.user_id = #{userid}
+        </if>
+        order by g.id
+    </select>
+
+    <select id="checkUnionIdByUserId" resultType="java.util.HashMap">
+        SELECT g.id id,g.login_type loginType,g.user_id userId,g.login_name loginName,g.live_phone livePhone,g.openid openid,g.union_id nuionId
+        FROM tb_consumer_log g where  g.`status`=1
+        <if test="userid >0" >
+           and g.user_id = #{userid}
+        </if>
+        <if test="appId != null and appId != '' and appId != 'null' ">
+            and g.app_id = #{appId}
+        </if>
+        order by g.id
+    </select>
+
+
+    <update id="updateConsumerLogToUserId">
+        update tb_consumer_log t set
+         t.user_id=#{userId},
+         t.union_id=#{unionId}
+         where
+         t.id=#{id}
+    </update>
+    <update id="updateConsumerLogUnionId">
+        update tb_consumer_log t set
+         t.union_id=#{unionId}
+         where
+         t.id=#{id}
+    </update>
+</mapper>

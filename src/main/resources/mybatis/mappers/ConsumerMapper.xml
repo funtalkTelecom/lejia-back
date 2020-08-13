@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lejia.mapper.ConsumerMapper">
+    <update id="insertConsumer">
+        update tb_consumer t set
+         t.nick_name =#{nickName},
+         t.img = #{img},
+         t.province =#{province},
+         t.city =#{city}
+         where t.id=#{userid}
+    </update>
+
+    <update id="insertAgentToConsumer">
+          update tb_consumer c set
+            c.is_agent=#{isAgent},
+            c.name=#{name},
+            c.phone=#{phone},
+            c.commpay_name=#{commpayName},
+            c.agent_province=#{agentProvince},
+            c.agent_city=#{agentCity},
+            c.agent_district=#{agentDistrict},
+            c.agent_address=#{agentAddress},
+            c.trading_img=#{tradingImg}
+            where c.id=#{id}
+    </update>
+
+    <update id="insertPhoneToConsumer">
+          update tb_consumer c set
+            c.phone=#{phone}
+            where c.id=#{id}
+    </update>
+
+    <select id="findConsumerById" resultType="Consumer">
+	  select * from 	tb_consumer c
+	  where  c.id = #{id}
+    </select>
+
+    <select id="partnerDevPerson" resultType="java.util.HashMap">
+	    select c.nick_name nickName,c.`name`,c.img,(case when c.partner_check=1 then '已通过' else '申请中' end) partnerCheck,
+        DATE_FORMAT(ifnull(c.partner_date,c.reg_date),'%Y-%m-%d') regDate,ifnull(ct.sale_total,0) salePrice,ifnull(ct.sale_count,0) saleCount,ifnull(ct.has_total,0) hasPrice,ifnull(ct.has_count,0) hasCount
+        from tb_consumer c left join (
+        select s.consumer_id,sum(o.total) sale_total,count(1) sale_count,
+        sum(case when o.`status`=6 then o.total else 0 end) has_total,
+        sum(case when o.`status`=6 then 1 else 0 end) has_count
+        from tb_order o left join tb_share s on s.id=o.share_id
+        left join tb_order_settle os on os.order_id=o.order_id
+        where o.`status` not in (7) and ifnull(o.share_id,0)>0 and os.fee_type=8 and DATE_FORMAT(o.add_date,'%Y%m')=#{month}
+        GROUP BY s.consumer_id)ct on ct.consumer_id=c.id
+        where c.is_partner=1 and c.up_consumer=#{consumerId} order by c.id
+    </select>
+
+</mapper>

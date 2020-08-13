@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lejia.mapper.UserMapper" >
+
+  <select id="getPower" resultType="java.util.HashMap">
+  	select p.id, p.name, p.url, p.id, p.pid, p.grade, p.seq from tb_permission p
+				 where (exists(select 1 from tb_role_permission rp,tb_user_role ur
+				 where p.id = rp.permission and rp.role_id = ur.role_id and ur.user_id = #{id} )
+				 or exists(select 1 from tb_user_permission up where p.id = up.permission and up.user_id = #{id} )) order by p.seq
+  </select>
+
+  <select id="findRoles" resultType="java.lang.String">
+  	select r.name from tb_user_role ur, tb_role r where ur.role_id = r.id and ur.user_id = #{id}
+  </select>
+
+  <select id="finRolesByUserId" resultType="java.util.HashMap">
+  	select concat(r.id,'') id, r.name name, ur.user_id userid  from tb_role r left join tb_user_role ur on r.id = ur.role_id and ur.user_id = #{id} order by r.id desc
+  </select>
+
+  <delete id="deleteRoleByUserId">
+  	delete ur from tb_user_role ur where ur.user_id = #{userId}
+  </delete>
+
+  <insert id="insertUr">
+  	insert into `tb_user_role`(`user_id`, `role_id`) VALUES (#{userId}, #{roleId});
+  </insert>
+</mapper>
